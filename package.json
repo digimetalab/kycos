@@ -1,6 +1,6 @@
 {
   "name": "@digimetalab/kycos",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "KYCOS — KYC OSINT Multi-Agent Intelligence System",
   "type": "module",
   "bin": {

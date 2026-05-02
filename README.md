@@ -22,20 +22,113 @@ By utilizing an advanced multi-agent architecture, KYCOS dramatically reduces th
 
 ## ✨ Core Features
 
-*   **🧠 Multi-Agent Architecture**
-    Deploys 7 distinct, specialized AI agents operating concurrently via Node.js `Promise.allSettled()`. This guarantees high fault tolerance; if one intelligence vector fails or times out, the rest of the investigation proceeds uninterrupted.
-*   **🚦 Dynamic AI Router**
-    Automatically selects the optimal Large Language Model (LLM) for each specific task based on complexity, cost, and privacy requirements. It supports **Anthropic Claude 3 Opus**, **Google Gemini 2.0 Flash**, and **OpenRouter (GPT-4o)** out of the box.
-*   **📊 Institutional Financial Modeling**
-    Implements the rigorous Indonesian OJK **5C+2W Credit Assessment Framework** (Character, Capacity, Capital, Collateral, Condition, Willingness, Wealth) alongside a proprietary 850-point credit scorecard.
-*   **📉 Basel III/IV IRB Insolvency Projection**
-    Calculates the statistical likelihood of corporate bankruptcy using the **Altman Z-Score** multivariate discriminant analysis. It autonomously maps outputs to compute Probability of Default (PD), Loss Given Default (LGD), and Expected Credit Loss (ECL).
-*   **🕵️ Deep AML & Sanctions Screening**
-    Cross-references targets against global watchlists (OFAC, UN Security Council, EU Consolidated) and detects structural illicit typologies (e.g., structuring, layering, shell company topologies).
-*   **💾 Local SQLite Persistence & Caching**
-    All investigations, agent telemetry, red flags, and generated reports are securely persisted to a local `better-sqlite3` database, allowing for instant historical retrieval and strict audit trailing.
-*   **📄 Comprehensive Multi-Format Export**
-    Generates exhaustive, executive-ready analytical reports in **Markdown (MD)**, **PDF** (via Puppeteer), **XLSX** (via ExcelJS), **HTML**, and **JSON**.
+*   **🧠 Multi-Agent Architecture**: Deploys 7 distinct, specialized AI agents operating concurrently via Node.js `Promise.allSettled()`. Guarantees high fault tolerance; if one intelligence vector fails or times out, the rest of the investigation proceeds uninterrupted.
+*   **🚦 Dynamic AI Router**: Automatically selects the optimal Large Language Model (LLM) for each specific task based on complexity, cost, and privacy requirements. Supports Anthropic Claude 3 Opus, Google Gemini 2.0 Flash, and OpenRouter (GPT-4o).
+*   **📊 Institutional Financial Modeling**: Implements the rigorous Indonesian OJK **5C+2W Credit Assessment Framework** alongside a proprietary 850-point credit scorecard.
+*   **📉 Basel III/IV IRB Insolvency Projection**: Calculates the statistical likelihood of corporate bankruptcy using the **Altman Z-Score**. Autonomously maps outputs to compute Probability of Default (PD), Loss Given Default (LGD), and Expected Credit Loss (ECL) per PSAK 71.
+*   **🕵️ Deep AML & Sanctions Screening**: Cross-references targets against global watchlists (OFAC, UN Security Council, EU Consolidated) and detects structural illicit typologies (e.g., structuring, layering, shell company topologies).
+*   **💾 Local SQLite Persistence & Caching**: All investigations, agent telemetry, red flags, and generated reports are securely persisted to a local `better-sqlite3` database, allowing for instant historical retrieval and strict audit trailing.
+*   **📄 Comprehensive Multi-Format Export**: Generates exhaustive, executive-ready analytical reports in Markdown (MD), PDF, XLSX, HTML, and JSON.
+
+---
+
+## 🏗️ Project Structure
+
+The codebase is organized into a modular, highly extensible domain-driven architecture:
+
+```text
+kycos/
+├── bin/
+│   └── kycos.js                    # CLI entry point
+├── src/
+│   ├── core/
+│   │   ├── base-agent.js           # Abstract BaseAgent class with error boundaries
+│   │   ├── orchestrator.js         # Investigation planner + parallel dispatcher
+│   │   ├── ai-router.js            # Strategy pattern for LLM routing
+│   │   ├── ai-clients.js           # Lazy-loaded Provider SDK wrappers
+│   │   └── schemas.js              # Zod schemas (AgentResult, RedFlag, etc.)
+│   ├── agents/
+│   │   ├── identity.agent.js       # Name/alias/ID/photo OSINT
+│   │   ├── social.agent.js         # Social media scraping + NLP sentiment
+│   │   ├── financial.agent.js      # 5C+2W scoring + financial ratios + AML
+│   │   ├── legal.agent.js          # Court records + sanctions (OFAC/UN/EU) + PEP
+│   │   ├── digital.agent.js        # WHOIS/Shodan/HIBP/email breach
+│   │   ├── network.agent.js        # UBO relationship graph
+│   │   └── risk.agent.js           # Basel IRB: PD/LGD/EAD/EL + credit scorecard
+│   ├── services/
+│   │   ├── investigation-db.js     # Relational persistence for completed queries
+│   │   ├── scraper.js              # Playwright + Cheerio layer
+│   │   └── cache.js                # SQLite request caching layer
+│   └── reports/
+│       ├── report-engine.js        # Handlebars template renderer
+│       └── md-report.js            # Deep-thinking Markdown report compiler
+├── data/                           # Local SQLite databases (auto-created)
+├── logs/                           # Automated file-logging output
+└── report/                         # Final generated investigation reports
+```
+
+---
+
+## 🧬 Technical Architecture & AI Routing
+
+The system uses a **Strategy Pattern** for model selection. Instead of relying on a single AI, KYCOS routes tasks to the most efficient LLM:
+
+| Task Type | Designated Model | Engineering Rationale |
+|---|---|---|
+| `narrative_synthesis` | **Claude 3 Opus** | Deepest reasoning and superior logical synthesis. |
+| `data_extraction` | **Gemini 2.0 Flash** | Ultra-high speed structured JSON extraction. |
+| `pattern_matching` | **GPT-4o** (via OpenRouter) | Exceptionally strong at traversing graph topologies and network matching. |
+| `cost_sensitive` | **Claude 3.5 Haiku** | Fallback for rapid, low-complexity tasks. |
+
+The **Orchestrator** dynamically generates an `InvestigationPlan` using an LLM, dispatches the required agents in parallel via `Promise.allSettled()`, and aggregates their strictly-typed `AgentResult` objects.
+
+---
+
+## 🤖 The 7 Intelligence Agents
+
+### 1. 🪪 Identity Agent
+- **Focus**: Biometric & Persona validation.
+- **Capabilities**: Full name resolution, semantic alias detection, and cryptographic ID number validation format checks (KTP/Passport/NPWP).
+
+### 2. 🌐 Social Agent
+- **Focus**: OSINT Footprinting.
+- **Capabilities**: Scrapes platforms (LinkedIn/X/Facebook), performs NLP sentiment analysis on public posts, and maps lifestyle-to-wealth consistency.
+
+### 3. 💰 Financial Agent (5C+2W & AML)
+**5C+2W Scoring Matrix (OJK Standard):**
+- **Character (20%)**: SLIK kolektibilitas + OSINT sentiment overlay.
+- **Capacity (25%)**: Debt Service Coverage Ratio (DSCR > 1.2x).
+- **Capital (20%)**: Debt-to-Equity (DER < 3x), Equity Ratio.
+- **Collateral (15%)**: LTV haircuts.
+- **Condition (10%)**: Industry macroeconomic risk score.
+- **Willingness (5%)**: Payment behavior consistency.
+- **Wealth (5%)**: LHKPN delta + wealth-income consistency.
+
+**AML Structural Detection:** Actively hunts for transactions clustering below reporting thresholds (Structuring), rapid inter-account transfers (Layering), and Nominee/Shell company signals.
+
+### 4. ⚖️ Legal Agent
+- **Focus**: Compliance & Watchlists.
+- **Capabilities**: Interrogates international sanctions (OFAC SDN, UN, EU Consolidated), determines Political Exposure (PEP), and scans domestic/international civil and criminal litigation dockets.
+
+### 5. 💻 Digital Agent
+- **Focus**: Cyber Exposure.
+- **Capabilities**: Analyzes WHOIS privacy, Shodan device vulnerabilities, HaveIBeenPwned (HIBP) clear-web credential breaches, and extrapolates Dark Web chatter.
+
+### 6. 🔗 Network Agent
+- **Focus**: Graph Topology & UBO.
+- **Capabilities**: Untangles complex corporate ownership chains to isolate the **Ultimate Beneficial Owner (UBO)** and detects anomalous cross-jurisdictional directorships.
+
+### 7. 📊 Risk Agent (Basel III/IV IRB)
+**Altman Z-Score (Probability of Default):**
+`Z = 1.2(X₁) + 1.4(X₂) + 3.3(X₃) + 0.6(X₄) + 1.0(X₅)`
+*(Calculates the statistical likelihood of absolute corporate bankruptcy within a 24-month horizon)*
+
+**Expected Credit Loss (ECL / PSAK 71):**
+`EL = PD × LGD × EAD`
+*(Maps the Z-Score to Probability of Default and applies collateral haircuts to compute provisioning requirements)*
+
+**Proprietary 850-Point Credit Scorecard:**
+Calculates final institutional rating (AAA to D) based on repayment velocity, credit utilization elasticity, credit mix, and an OSINT alternative-data overlay.
 
 ---
 
@@ -63,7 +156,7 @@ By utilizing an advanced multi-agent architecture, KYCOS dramatically reduces th
 
 ## ⚙️ Environment Configuration
 
-KYCOS relies on several external APIs to orchestrate its intelligence gathering. Configure these in your `.env` file:
+Configure external API keys in your `.env` file:
 
 | Environment Variable | Provider / Purpose | Requirement |
 | :--- | :--- | :--- |
@@ -78,7 +171,7 @@ KYCOS relies on several external APIs to orchestrate its intelligence gathering.
 
 ## 💻 CLI Usage Guide
 
-KYCOS provides an interactive, futuristic command-line dashboard with real-time progress indicators.
+KYCOS provides an interactive command-line dashboard with real-time progress indicators.
 
 ### 1. Run an Investigation
 You can initiate an investigation interactively (by typing `node bin/kycos.js investigate` without arguments) or via direct flags:
@@ -118,22 +211,6 @@ node bin/kycos.js config --check
 # Purge expired data from the local SQLite cache
 node bin/kycos.js cache --purge
 ```
-
----
-
-## 🏗️ System Architecture & Agent Specialization
-
-KYCOS is built on a modular, decentralized pipeline. The **Orchestrator** receives the user's prompt, builds an execution plan, and dispatches tasks to the following specialized agents:
-
-| Sub-system Agent | Intelligence Domain | Algorithmic Responsibilities |
-| :--- | :--- | :--- |
-| **🪪 Identity Agent** | Biometric & Persona | Validates ID structures, maps semantic aliases, and attempts cryptographic verification. |
-| **🌐 Social Agent** | OSINT Footprinting | Scrapes digital platforms, performs NLP sentiment analysis, and maps lifestyle-to-wealth consistency. |
-| **💰 Financial Agent** | Capital & AML | Constructs the 5C+2W framework and actively hunts for structuring, layering, and shell-company topologies. |
-| **⚖️ Legal Agent** | Compliance & Watchlists | Queries global sanctions (OFAC, UN, EU), determines Political Exposure (PEP), and scans litigation dockets. |
-| **💻 Digital Agent** | Cyber Exposure | Analyzes WHOIS privacy, Shodan vulnerabilities, and interrogates Dark Web/Clear Web credential breaches. |
-| **🔗 Network Agent** | UBO Graphing | Untangles complex corporate ownership chains to isolate the Ultimate Beneficial Owner (UBO) and cross-directorships. |
-| **📊 Risk Agent** | Institutional Modeling | Generates the Altman Z-Score, calculates Basel III/IV IRB Expected Loss (ECL), and builds the final 850-point scorecard. |
 
 ---
 
