@@ -49,7 +49,7 @@ By utilizing an advanced multi-agent architecture, KYCOS dramatically reduces th
 ### Quick Start
 1. Clone the repository and install the dependencies:
    ```bash
-   git clone https://github.com/your-org/kycos.git
+   git clone https://github.com/digimetalab/kycos.git
    cd kycos
    npm install
    ```
