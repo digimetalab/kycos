@@ -181,7 +181,7 @@ You can initiate an investigation interactively (by typing `node bin/kycos.js in
 node bin/kycos.js investigate -t "John Doe" -m quick
 
 # Run a full institutional credit assessment on a corporation
-node bin/kycos.js investigate -t "PT Bank Mandiri Tbk" --type corporation -m credit
+node bin/kycos.js investigate -t "PT Nusantara Teknologi" --type corporation -m credit
 
 # Execute a deep-dive investigation and output results strictly as JSON
 node bin/kycos.js investigate -t "Jane Doe" -m deep --output json
