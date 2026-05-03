@@ -5,9 +5,12 @@ data/
 *.db-wal
 *.db-shm
 output/
+report/
 reports/
 dist/
 coverage/
 .DS_Store
 Thumbs.db
 *.log
+graphify-out/
+.agents/
